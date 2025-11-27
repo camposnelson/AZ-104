@@ -30,8 +30,14 @@
           <h2>Preguntas rápidas (1–600)</h2>
           <p class="muted">Modo examen con 3 opciones, evaluación inmediata y explicación al revelar.</p>
         </div>
-        <div class="progress" aria-live="polite">
-          <span id="progressCount">0</span>/<span id="progressTotal">250</span> aciertos
+        <div class="panel__meta">
+          <div class="progress" aria-live="polite">
+            <span id="progressCount">0</span>/<span id="progressTotal">250</span> aciertos
+          </div>
+          <div class="progress progress--error" aria-live="polite">
+            <span id="errorCount">0</span> fallos
+          </div>
+          <button id="themeToggle" class="button button--ghost" type="button">Modo claro</button>
         </div>
       </header>
 
