@@ -11,6 +11,18 @@
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+body.theme-light {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --card: #f7f9fc;
+  --accent: #2b72ff;
+  --accent-strong: #1f8f5f;
+  --text: #0f172a;
+  --muted: #475569;
+  --border: #d8e2f1;
+  --shadow: 0 12px 35px rgba(15, 23, 42, 0.08);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -139,9 +151,21 @@ h3 {
   align-items: baseline;
 }
 
+.panel__meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .progress {
   color: var(--accent-strong);
   font-weight: 700;
+}
+
+.progress--error {
+  color: #f87171;
 }
 
 .controls {
