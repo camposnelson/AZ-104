@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AZ-104 | Practica rápida</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero__content">
+      <p class="eyebrow">Examen AZ-104</p>
+      <h1>Preguntas rápidas de repaso</h1>
+      <p class="lede">
+        12 bloques con 600 preguntas tipo examen para practicar AZ-104. Responde,
+        revela la solución y lee el porqué para fijar el concepto.
+      </p>
+      <div class="hero__actions">
+        <button id="revealAll" class="button button--ghost">Revelar todas</button>
+        <button id="resetState" class="button">Reiniciar progreso</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel">
+      <header class="panel__header">
+        <div>
+          <p class="eyebrow">Bloques 1–12</p>
+          <h2>Preguntas rápidas (1–600)</h2>
+          <p class="muted">Modo examen con 3 opciones, evaluación inmediata y explicación al revelar.</p>
+        </div>
+        <div class="progress" aria-live="polite">
+          <span id="progressCount">0</span>/<span id="progressTotal">250</span> aciertos
+        </div>
+      </header>
+
+      <div class="controls">
+        <label class="input">
+          <span class="input__label">Filtrar por texto</span>
+          <input id="search" type="search" placeholder="Busca servicio, recurso o acción" />
+        </label>
+        <label class="input">
+          <span class="input__label">Filtrar por bloque</span>
+          <select id="blockFilter"></select>
+        </label>
+        <label class="input input--checkbox">
+          <input id="hideCompleted" type="checkbox" />
+          <span>Ocultar completadas</span>
+        </label>
+        <label class="input input--checkbox input--accent">
+          <input id="examMode" type="checkbox" />
+          <span>Modo examen (oculta pistas hasta revelar)</span>
+        </label>
+      </div>
+
+      <div id="questions" class="grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <template id="questionCard">
+    <article class="card">
+      <div class="card__header">
+        <p class="eyebrow">Pregunta <span class="card__number"></span></p>
+        <label class="pill">
+          <input type="checkbox" class="card__check" />
+          <span>Dominada</span>
+        </label>
+        <span class="badge">Bloque <span class="card__block"></span></span>
+      </div>
+      <h3 class="card__title"></h3>
+      <div class="card__options" role="group" aria-label="Opciones de respuesta"></div>
+      <div class="card__status" aria-live="polite"></div>
+      <div class="card__answer" hidden>
+        <p><strong>Respuesta:</strong> <span class="card__answer-text"></span></p>
+        <p class="card__why"><strong>¿Por qué?</strong> <span class="card__why-text"></span></p>
+      </div>
+      <div class="card__footer">
+        <button class="button button--ghost card__toggle">Mostrar respuesta</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="main.js"></script>
+</body>
+</html>
