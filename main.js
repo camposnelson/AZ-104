@@ -3257,12 +3257,14 @@ const questionsContainer = document.getElementById('questions');
 const template = document.getElementById('questionCard');
 const progressCount = document.getElementById('progressCount');
 const progressTotal = document.getElementById('progressTotal');
+const errorCount = document.getElementById('errorCount');
 const searchInput = document.getElementById('search');
 const blockFilter = document.getElementById('blockFilter');
 const hideCompletedToggle = document.getElementById('hideCompleted');
 const examModeToggle = document.getElementById('examMode');
 const revealAllButton = document.getElementById('revealAll');
 const resetButton = document.getElementById('resetState');
+const themeToggle = document.getElementById('themeToggle');
 
 const BLOCK_SIZE = 50;
 const STORAGE_KEY = 'az104-quiz-bloques';
@@ -3288,12 +3290,14 @@ const DISTRACTOR_POOL = [
 ];
 
 function loadState() {
+  const defaults = { completed: {}, revealed: {}, examMode: false, answers: {}, results: {}, theme: 'dark' };
+
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : { completed: {}, revealed: {}, examMode: false, answers: {}, results: {} };
+    return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
   } catch (error) {
     console.error('No se pudo leer localStorage', error);
-    return { completed: {}, revealed: {}, examMode: false, answers: {}, results: {} };
+    return defaults;
   }
 }
 
@@ -3308,7 +3312,15 @@ if (typeof state.examMode === 'undefined') {
 }
 if (!state.answers) state.answers = {};
 if (!state.results) state.results = {};
+if (!state.theme) state.theme = 'dark';
 examModeToggle.checked = state.examMode;
+
+function applyTheme(theme) {
+  document.body.classList.toggle('theme-light', theme === 'light');
+  themeToggle.textContent = theme === 'light' ? 'Modo oscuro' : 'Modo claro';
+}
+
+applyTheme(state.theme);
 
 function getBlockFromNumber(number) {
   return Math.floor((number - 1) / BLOCK_SIZE) + 1;
@@ -3333,23 +3345,36 @@ function populateBlockFilter() {
 
 populateBlockFilter();
 
+function shuffleOptions(options, seed) {
+  const shuffled = [...options];
+  let randomSeed = (seed + 1) * 9301;
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    randomSeed = (randomSeed * 9301 + 49297) % 233280;
+    const j = randomSeed % (i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
 function getOptions(item, index) {
-  if (Array.isArray(item.options) && item.options.length >= 3) {
-    return item.options;
-  }
+  const baseOptions = Array.isArray(item.options) && item.options.length >= 3 ? item.options : (() => {
+    const pool = DISTRACTOR_POOL.filter((opt) => opt !== item.a);
+    const start = index % pool.length;
+    const dynamic = [];
 
-  const pool = DISTRACTOR_POOL.filter((opt) => opt !== item.a);
-  const start = index % pool.length;
-  const dynamic = [];
-
-  for (let i = 0; dynamic.length < 2; i += 1) {
-    const candidate = pool[(start + i) % pool.length];
-    if (!dynamic.includes(candidate)) {
-      dynamic.push(candidate);
+    for (let i = 0; dynamic.length < 2; i += 1) {
+      const candidate = pool[(start + i) % pool.length];
+      if (!dynamic.includes(candidate)) {
+        dynamic.push(candidate);
+      }
     }
-  }
 
-  return [item.a, ...dynamic];
+    return [item.a, ...dynamic];
+  })();
+
+  return shuffleOptions(baseOptions, index + 1);
 }
 
 function renderQuestions() {
@@ -3448,7 +3473,11 @@ function renderQuestions() {
 
 function updateProgress() {
   const correctCount = Object.values(state.results).filter(Boolean).length;
+  const incorrectCount = Object.values(state.results).filter((value) => value === false).length;
   progressCount.textContent = correctCount;
+  if (errorCount) {
+    errorCount.textContent = incorrectCount;
+  }
   if (progressTotal) {
     progressTotal.textContent = questionsData.length;
   }
@@ -3478,6 +3507,12 @@ examModeToggle.addEventListener('change', (event) => {
   renderQuestions();
 });
 
+themeToggle.addEventListener('click', () => {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  applyTheme(state.theme);
+  saveState(state);
+});
+
 revealAllButton.addEventListener('click', () => {
   questionsData.forEach((_, index) => {
     state.revealed[index + 1] = true;
@@ -3487,11 +3522,13 @@ revealAllButton.addEventListener('click', () => {
 });
 
 resetButton.addEventListener('click', () => {
-  state = { completed: {}, revealed: {}, examMode: false, answers: {}, results: {} };
+  const preservedTheme = state.theme || 'dark';
+  state = { completed: {}, revealed: {}, examMode: false, answers: {}, results: {}, theme: preservedTheme };
   saveState(state);
   searchInput.value = '';
   hideCompletedToggle.checked = false;
   examModeToggle.checked = false;
+  applyTheme(state.theme);
   renderQuestions();
   updateProgress();
 });
